@@ -20,4 +20,13 @@
     client
         .setEndpoint('https://fra.cloud.appwrite.io/v1')
         .setProject('682f1ebc003d1a476970');
+
+    const storage = new Storage(client);
+
+    const result = await storage.getFile(
+        '682f27500032586773f2',
+        '682f2804000a730d6bba',
+    );
+
+    console.log(result);
 </script>
