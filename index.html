@@ -13,3 +13,11 @@
     </form>
 </body>
 </html>
+<script src="https://cdn.jsdelivr.net/npm/appwrite@17.0.2"></script>
+<script>
+    const { Client } = Appwrite;
+    const client = new Client();
+    client
+        .setEndpoint('https://fra.cloud.appwrite.io/v1')
+        .setProject('682f1ebc003d1a476970');
+</script>
