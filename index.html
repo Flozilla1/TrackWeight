@@ -23,10 +23,9 @@
 
     const storage = new Storage(client);
 
-    const result = await storage.getFile(
+    storage.getFile(
         '682f27500032586773f2',
         '682f2804000a730d6bba',
-    );
-
-    console.log(result);
+    ).then(file => console.warn(file))
+    .catch(error => console.error('Fehler:\n', error))
 </script>
