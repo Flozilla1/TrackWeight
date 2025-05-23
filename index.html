@@ -21,11 +21,28 @@
         .setEndpoint('https://fra.cloud.appwrite.io/v1')
         .setProject('682f1ebc003d1a476970');
 
-    const storage = new Storage(client);
+    const storage = new Appwrite.Storage(client);
 
     storage.getFile(
         '682f27500032586773f2',
         '682f2804000a730d6bba',
     ).then(file => console.warn(file))
-    .catch(error => console.error('Fehler:\n', error))
+    .catch(error => console.error('Fehler:\n', error));
+
+    console.log('Fetching 1: ');
+    fetch('https://cloud.appwrite.io/v1/functions/682f2b76001180c5508c/executions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: { weight: 100 }
+    })
+        .then(console.warn)
+        .catch(console.error);
+    console.log('Fetching 2: ');
+    fetch('https://cloud.appwrite.io/v1/functions/6830769d002a59032045/executions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: { weight: 100 }
+    })
+        .then(console.warn)
+        .catch(console.error);
 </script>
