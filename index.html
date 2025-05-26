@@ -5,44 +5,30 @@
     <title>Gewicht Tracken</title>
 </head>
 <body>
-    <form method="POST" action="https://cloud.appwrite.io/v1/functions/receivePost/executions">
+    <form id="weightForm">
         <label>
             Gewicht:
-            <input name="weight" type="number" min="70" max="120" value="90" step=".1" autofocus required />
+            <input id="weight" name="weight" type="number" min="70" max="120" value="90" step=".1" autofocus required />
         </label>
     </form>
 </body>
 </html>
 <script src="https://cdn.jsdelivr.net/npm/appwrite@17.0.2"></script>
 <script>
-    const { Client } = Appwrite;
+    const { Client, Functions } = Appwrite;
     const client = new Client();
     client
         .setEndpoint('https://fra.cloud.appwrite.io/v1')
         .setProject('682f1ebc003d1a476970');
 
-    const storage = new Appwrite.Storage(client);
+    const functions = new Functions(client);
 
-    storage.getFile(
-        '682f27500032586773f2',
-        '682f2804000a730d6bba',
-    ).then(file => console.warn(file))
-    .catch(error => console.error('Fehler:\n', error));
-
-    console.log('Fetching 1: ');
-    fetch('https://cloud.appwrite.io/v1/functions/682f2b76001180c5508c/executions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: { weight: 100 }
-    })
-        .then(console.warn)
-        .catch(console.error);
-    console.log('Fetching 2: ');
-    fetch('https://cloud.appwrite.io/v1/functions/6830769d002a59032045/executions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: { weight: 100 }
-    })
-        .then(console.warn)
-        .catch(console.error);
+    document.getElementById('weightForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const weight = document.getElementById('weight').value;
+        functions.createExecution(
+            '6830769d002a59032045', // Function ID
+            weight,
+        );
+    });
 </script>
