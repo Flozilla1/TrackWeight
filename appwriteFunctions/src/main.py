@@ -1,2 +1,3 @@
 def main(context):
-    return context.res.json({"message": "hello world", "req": context.req})
+    context.log(context.req)
+    return context.res.json({"message": "hello world"})
