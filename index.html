@@ -5,30 +5,113 @@
     <title>Gewicht Tracken</title>
 </head>
 <body>
+
+<div id="container"></div>
+<div id="infoContainer"></div>
+
+<template id="ifLoggedOut">
+    <form id="loginForm">
+        <label>
+            Email:
+            <input id="email" type="email" name="email" autofocus required />
+        </label>
+        <label>
+            Passwort:
+            <input id="password" type="password" name="password" required />
+        </label>
+        <button type="submit">Login</button>
+    </form>
+</template>
+
+<template id="ifLoggedIn">
     <form id="weightForm">
         <label>
             Gewicht:
             <input id="weight" name="weight" type="number" min="70" max="120" value="90" step=".1" autofocus required />
         </label>
     </form>
+</template>
+
 </body>
 </html>
 <script src="https://cdn.jsdelivr.net/npm/appwrite@17.0.2"></script>
 <script>
-    const { Client, Functions } = Appwrite;
+    const { Client, Functions, Account } = Appwrite;
     const client = new Client();
     client
         .setEndpoint('https://fra.cloud.appwrite.io/v1')
         .setProject('682f1ebc003d1a476970');
 
     const functions = new Functions(client);
+    const account = new Account(client);
 
-    document.getElementById('weightForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const weight = document.getElementById('weight').value;
-        functions.createExecution(
-            '6830769d002a59032045', // Function ID
-            weight,
-        );
-    });
+    const showToUser = res => document.getElementById('infoContainer').innerHTML += '\n' + res;
+    const catchError = err =>
+        showToUser((err instanceof AppwriteException ?
+                `${err.code}: ${err.message}` :
+                err instanceof Error ?
+                    `Unexpected error: ${err.message}` :
+                    `An unknown error occurred`));
+    const addWeightFormEventListener = () =>
+        document.getElementById('weightForm').addEventListener('submit', e => {
+            e.preventDefault();
+            if (user.loggedInUser) {
+                const weight = document.getElementById('weight').value;
+                functions.createExecution(
+                    '6830769d002a59032045', // Function ID
+                    weight,
+                );
+            } else showToUser('GOTTA BE LOGGED IN BRO');
+        });
+    const addLoginFormEventListener = () =>
+        document.getElementById('loginForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const pw = document.getElementById('password').value;
+
+            if (email && pw) {
+                user.isLoadingUser = true;
+                account.createEmailPasswordSession(email, pw)
+                    .then(() => user.loggedInUser = account.get()
+                        .catch(() => undefined)
+                        .finally(() => {
+                            user.isLoadingUser = false;
+                            showCorrectHTMLSection();
+                        })
+                    )
+                    .catch(catchError);
+            }
+        });
+
+    const showCorrectHTMLSection = () => {
+        const container = document.getElementById('container');
+        container.innerHTML = '';
+
+        const template = document.getElementById(user.loggedInUser ? 'ifLoggedIn' : 'ifLoggedOut');
+        container.appendChild(template.content.cloneNode(true));
+
+        if (user.loggedInUser) addWeightFormEventListener();
+        else addLoginFormEventListener();
+    }
+
+    class User {
+        loggedInUser;
+        isLoadingUser = true;
+
+        constructor() {
+            account.get()
+                .then(u => {
+                    showToUser('—————————— LOGGED IN ——————————');
+                    this.loggedInUser = u;
+                })
+                .catch(error => error.code === 401 ?
+                    showToUser('—————————— LOGGED OUT ——————————') :
+                    catchError(error))
+                .finally(() => {
+                    this.isLoadingUser = false;
+                    showCorrectHTMLSection();
+                });
+        }
+    }
+    const user = new User();
 </script>
